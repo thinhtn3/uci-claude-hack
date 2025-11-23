@@ -3,7 +3,7 @@ import { Box, Container, Heading, Text, Button, VStack, Input, HStack, Link } fr
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { LogIn, Mail, Lock } from 'lucide-react'
-import { Navbar } from '../components'
+import Navbar from '../components/Navbar'
 import { supabase } from '../lib/supabase'
 
 const MotionBox = motion.create(Box)

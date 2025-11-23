@@ -1,14 +1,210 @@
 import { useState, useEffect } from 'react'
-import { Box, Container, Heading, Text, Button, VStack, HStack } from '@chakra-ui/react'
-import { Building2 } from 'lucide-react'
+import { Box, Container, Heading, Text, Button, VStack, HStack, SimpleGrid, Badge } from '@chakra-ui/react'
+import { Building2, TrendingUp, TrendingDown, Wallet, CreditCard } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Navbar } from '../components'
+import Navbar from '../components/Navbar'
 import { useAuth } from '../contexts/AuthContext'
+import Plot from 'react-plotly.js'
+
+// Mock Plaid data - simulates response from Plaid API
+const MOCK_PLAID_DATA = {
+  accounts: [
+    {
+      account_id: 'acc_1',
+      name: 'Plaid Checking',
+      official_name: 'Plaid Gold Standard 0% Interest Checking',
+      type: 'depository',
+      subtype: 'checking',
+      mask: '0000',
+      balances: {
+        available: 100.00,
+        current: 110.00,
+        limit: null,
+        iso_currency_code: 'USD'
+      }
+    },
+    {
+      account_id: 'acc_2',
+      name: 'Plaid Saving',
+      official_name: 'Plaid Silver Standard 0.1% Interest Saving',
+      type: 'depository',
+      subtype: 'savings',
+      mask: '1111',
+      balances: {
+        available: 200.00,
+        current: 210.00,
+        limit: null,
+        iso_currency_code: 'USD'
+      }
+    },
+    {
+      account_id: 'acc_3',
+      name: 'Plaid Credit Card',
+      official_name: 'Plaid Diamond 12.5% APR Interest Credit Card',
+      type: 'credit',
+      subtype: 'credit card',
+      mask: '3333',
+      balances: {
+        available: 410.00,
+        current: 410.00,
+        limit: 2000.00,
+        iso_currency_code: 'USD'
+      }
+    }
+  ],
+  transactions: [
+    {
+      transaction_id: 'tx_1',
+      account_id: 'acc_1',
+      amount: 89.40,
+      date: '2024-11-21',
+      name: 'Uber 072515 SF**POOL**',
+      merchant_name: 'Uber',
+      category: ['Transportation', 'Taxis and Ride Shares'],
+      pending: false,
+      payment_channel: 'online'
+    },
+    {
+      transaction_id: 'tx_2',
+      account_id: 'acc_1',
+      amount: 12.00,
+      date: '2024-11-21',
+      name: 'McDonald\'s',
+      merchant_name: 'McDonald\'s',
+      category: ['Food and Drink', 'Restaurants', 'Fast Food'],
+      pending: false,
+      payment_channel: 'in store'
+    },
+    {
+      transaction_id: 'tx_3',
+      account_id: 'acc_1',
+      amount: -500.00,
+      date: '2024-11-20',
+      name: 'UNITED AIRLINES',
+      merchant_name: 'United Airlines',
+      category: ['Travel', 'Airlines and Aviation Services'],
+      pending: false,
+      payment_channel: 'online'
+    },
+    {
+      transaction_id: 'tx_4',
+      account_id: 'acc_1',
+      amount: 4.33,
+      date: '2024-11-20',
+      name: 'Starbucks',
+      merchant_name: 'Starbucks',
+      category: ['Food and Drink', 'Restaurants', 'Coffee Shop'],
+      pending: false,
+      payment_channel: 'in store'
+    },
+    {
+      transaction_id: 'tx_5',
+      account_id: 'acc_1',
+      amount: 25.00,
+      date: '2024-11-19',
+      name: 'Spotify',
+      merchant_name: 'Spotify',
+      category: ['Service', 'Entertainment'],
+      pending: false,
+      payment_channel: 'online'
+    },
+    {
+      transaction_id: 'tx_6',
+      account_id: 'acc_2',
+      amount: 500.00,
+      date: '2024-11-18',
+      name: 'INTRST PYMNT',
+      merchant_name: null,
+      category: ['Transfer', 'Deposit'],
+      pending: false,
+      payment_channel: 'other'
+    },
+    {
+      transaction_id: 'tx_7',
+      account_id: 'acc_3',
+      amount: 6.33,
+      date: '2024-11-17',
+      name: 'Tectra Inc',
+      merchant_name: 'Tectra Inc',
+      category: ['Payment'],
+      pending: false,
+      payment_channel: 'online'
+    },
+    {
+      transaction_id: 'tx_8',
+      account_id: 'acc_1',
+      amount: 78.50,
+      date: '2024-11-17',
+      name: 'Madison Bicycle Shop',
+      merchant_name: 'Madison Bicycle Shop',
+      category: ['Shops', 'Sporting Goods'],
+      pending: false,
+      payment_channel: 'in store'
+    }
+  ]
+}
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user, loading } = useAuth()
   const [connectingBank, setConnectingBank] = useState(false)
+  const [plaidData] = useState(MOCK_PLAID_DATA)
+
+  // Process transaction data for Sankey diagram
+  const getSankeyData = () => {
+    // Categorize transactions
+    const categorySpending = {}
+    let totalIncome = 0
+    
+    plaidData.transactions.forEach(tx => {
+      if (tx.amount < 0) {
+        // Negative amounts are income/deposits
+        totalIncome += Math.abs(tx.amount)
+      } else {
+        // Positive amounts are expenses
+        const category = tx.category?.[0] || 'Other'
+        categorySpending[category] = (categorySpending[category] || 0) + tx.amount
+      }
+    })
+
+    // Create nodes
+    const nodes = ['Income', 'Available Balance', ...Object.keys(categorySpending)]
+    
+    // Create links
+    const source = []
+    const target = []
+    const value = []
+    const colors = []
+
+    // Income -> Available Balance
+    source.push(0) // Income
+    target.push(1) // Available Balance
+    value.push(totalIncome)
+    colors.push('rgba(34, 197, 94, 0.5)') // Green for income
+
+    // Available Balance -> Spending Categories
+    Object.entries(categorySpending).forEach(([category, amount], index) => {
+      source.push(1) // Available Balance
+      target.push(index + 2) // Category nodes start at index 2
+      value.push(amount)
+      colors.push('rgba(239, 68, 68, 0.4)') // Red for expenses
+    })
+
+    return {
+      nodes: nodes.map((label, i) => ({
+        label,
+        color: i === 0 ? '#22c55e' : i === 1 ? '#06b6d4' : '#ef4444'
+      })),
+      links: {
+        source,
+        target,
+        value,
+        color: colors
+      }
+    }
+  }
+
+  const sankeyData = getSankeyData()
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -53,6 +249,11 @@ export default function Dashboard() {
     return null
   }
 
+  // Calculate total balance
+  const totalBalance = plaidData.accounts.reduce((sum, account) => {
+    return sum + (account.balances.current || 0)
+  }, 0)
+
   return (
     <Box minH="100vh" bg="#0a0f1e">
       <Navbar />
@@ -69,67 +270,234 @@ export default function Dashboard() {
       />
 
       <Container maxW="container.xl" position="relative" zIndex={1} pt={24} pb={12}>
-        {/* Bank Connection Call to Action */}
-        <Box
-          bg="rgba(15, 23, 42, 0.8)"
-          backdropFilter="blur(10px)"
-          p={12}
-          rounded="xl"
-          borderWidth="2px"
-          borderColor="rgba(6, 182, 212, 0.3)"
-          textAlign="center"
-        >
-          <VStack gap={6}>
-            <Box
-              p={5}
-              bg="rgba(6, 182, 212, 0.1)"
-              borderWidth="1px"
-              borderColor="rgba(6, 182, 212, 0.3)"
-              rounded="xl"
-              color="cyan.400"
-            >
-              <Building2 size={64} />
-            </Box>
-            <Heading size="xl" color="gray.100">
-              Connect Your Bank Account
+        <VStack gap={6} align="stretch">
+          {/* Welcome Header */}
+          <Box>
+            <Heading size="xl" color="gray.100" mb={2}>
+              Welcome back, {user?.email?.split('@')[0]}
             </Heading>
-            <Text color="gray.400" maxW="lg" fontSize="lg">
-              Securely link your bank account with Plaid to automatically track transactions, 
-              get AI-powered insights, and manage your finances intelligently.
+            <Text color="gray.400">
+              Here's your financial overview
             </Text>
-            <HStack gap={4} mt={4}>
-              <Button
-                bg="cyan.500"
-                color="gray.900"
-                size="lg"
-                fontWeight="bold"
-                leftIcon={<Building2 size={20} />}
-                isLoading={connectingBank}
-                loadingText="Connecting..."
-                _hover={{ bg: 'cyan.400', transform: 'translateY(-2px)' }}
-                transition="all 0.2s"
-                onClick={handleConnectBank}
-                shadow="0 0 20px rgba(6, 182, 212, 0.3)"
-                px={8}
-              >
-                Connect with Plaid
-              </Button>
-              <Button
-                variant="outline"
-                color="gray.400"
-                borderColor="gray.600"
-                size="lg"
-                _hover={{ borderColor: 'gray.500', color: 'gray.300' }}
-                onClick={() => window.open('https://plaid.com/how-we-handle-data/', '_blank')}
-              >
-                Learn about security
-              </Button>
+          </Box>
+
+          {/* Total Balance Card */}
+          <Box
+            bg="rgba(15, 23, 42, 0.8)"
+            backdropFilter="blur(10px)"
+            p={8}
+            rounded="xl"
+            borderWidth="1px"
+            borderColor="rgba(6, 182, 212, 0.3)"
+            bgGradient="linear(to-br, rgba(6, 182, 212, 0.1), rgba(15, 23, 42, 0.8))"
+          >
+            <VStack align="start" gap={2}>
+              <HStack gap={2}>
+                <Wallet size={20} color="#06b6d4" />
+                <Text color="gray.400" fontSize="sm">Total Balance</Text>
+              </HStack>
+              <Heading size="2xl" color="cyan.300">
+                ${totalBalance.toFixed(2)}
+              </Heading>
+              <Text color="gray.500" fontSize="sm">
+                Across {plaidData.accounts.length} accounts
+              </Text>
+            </VStack>
+          </Box>
+
+          {/* Money Flow Visualization - Sankey Diagram */}
+          <Box>
+            <Heading size="md" color="gray.100" mb={4}>
+              Money Flow
+            </Heading>
+            <Box
+              bg="rgba(15, 23, 42, 0.8)"
+              backdropFilter="blur(10px)"
+              p={6}
+              rounded="xl"
+              borderWidth="1px"
+              borderColor="rgba(51, 65, 85, 0.6)"
+              overflow="hidden"
+            >
+              <Plot
+                data={[
+                  {
+                    type: 'sankey',
+                    orientation: 'h',
+                    node: {
+                      pad: 15,
+                      thickness: 20,
+                      line: {
+                        color: '#334155',
+                        width: 2
+                      },
+                      label: sankeyData.nodes.map(n => n.label),
+                      color: sankeyData.nodes.map(n => n.color),
+                      customdata: sankeyData.nodes.map(n => n.label),
+                      hovertemplate: '%{customdata}<br />$%{value:.2f}<extra></extra>'
+                    },
+                    link: {
+                      source: sankeyData.links.source,
+                      target: sankeyData.links.target,
+                      value: sankeyData.links.value,
+                      color: sankeyData.links.color,
+                      hovertemplate: '%{source.label} → %{target.label}<br />$%{value:.2f}<extra></extra>'
+                    }
+                  }
+                ]}
+                layout={{
+                  font: {
+                    size: 12,
+                    color: '#cbd5e1'
+                  },
+                  paper_bgcolor: 'rgba(0,0,0,0)',
+                  plot_bgcolor: 'rgba(0,0,0,0)',
+                  margin: { l: 10, r: 10, t: 10, b: 10 },
+                  height: 400
+                }}
+                config={{
+                  displayModeBar: false,
+                  responsive: true
+                }}
+                style={{ width: '100%' }}
+              />
+              <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
+                Visualizes income flowing to available balance and spending across categories
+              </Text>
+            </Box>
+          </Box>
+
+          {/* Accounts Grid */}
+          <Box>
+            <Heading size="md" color="gray.100" mb={4}>
+              Your Accounts
+            </Heading>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+              {plaidData.accounts.map((account) => (
+                <Box
+                  key={account.account_id}
+                  bg="rgba(15, 23, 42, 0.8)"
+                  backdropFilter="blur(10px)"
+                  p={6}
+                  rounded="xl"
+                  borderWidth="1px"
+                  borderColor="rgba(51, 65, 85, 0.6)"
+                  _hover={{ 
+                    borderColor: 'rgba(6, 182, 212, 0.5)', 
+                    transform: 'translateY(-2px)',
+                    shadow: '0 0 20px rgba(6, 182, 212, 0.2)'
+                  }}
+                  transition="all 0.2s"
+                >
+                  <VStack align="start" gap={3}>
+                    <HStack justify="space-between" w="full">
+                      <HStack gap={2}>
+                        {account.type === 'credit' ? (
+                          <CreditCard size={20} color="#06b6d4" />
+                        ) : (
+                          <Building2 size={20} color="#06b6d4" />
+                        )}
+                        <Text color="gray.300" fontSize="sm" fontWeight="semibold">
+                          {account.name}
+                        </Text>
+                      </HStack>
+                      <Badge 
+                        colorPalette={account.type === 'credit' ? 'orange' : 'cyan'}
+                        size="sm"
+                      >
+                        {account.subtype}
+                      </Badge>
+                    </HStack>
+                    <Text color="gray.500" fontSize="xs">
+                      ****{account.mask}
+                    </Text>
+                    <Box w="full">
+                      <Text color="gray.400" fontSize="xs" mb={1}>
+                        {account.type === 'credit' ? 'Available Credit' : 'Available Balance'}
+                      </Text>
+                      <Heading size="lg" color="cyan.300">
+                        ${account.balances.available?.toFixed(2)}
+                      </Heading>
+                      {account.balances.limit && (
+                        <Text color="gray.500" fontSize="xs" mt={1}>
+                          of ${account.balances.limit.toFixed(2)} limit
+                        </Text>
+                      )}
+                    </Box>
+                  </VStack>
+                </Box>
+              ))}
+            </SimpleGrid>
+          </Box>
+
+          {/* Recent Transactions */}
+          <Box>
+            <HStack justify="space-between" mb={4}>
+              <Heading size="md" color="gray.100">
+                Recent Transactions
+              </Heading>
+              <Text color="gray.500" fontSize="sm">
+                Last 7 days
+              </Text>
             </HStack>
-            <Text color="gray.600" fontSize="sm" mt={4}>
-              🔒 Your data is encrypted and secure. Plaid never stores your bank credentials.
-            </Text>
-          </VStack>
-        </Box>
+            <Box
+              bg="rgba(15, 23, 42, 0.8)"
+              backdropFilter="blur(10px)"
+              rounded="xl"
+              borderWidth="1px"
+              borderColor="rgba(51, 65, 85, 0.6)"
+              overflow="hidden"
+            >
+              <VStack gap={0} align="stretch">
+                {plaidData.transactions.map((transaction, index) => (
+                  <Box
+                    key={transaction.transaction_id}
+                    p={4}
+                    borderBottomWidth={index < plaidData.transactions.length - 1 ? '1px' : '0'}
+                    borderColor="rgba(51, 65, 85, 0.6)"
+                    _hover={{ bg: 'rgba(6, 182, 212, 0.05)' }}
+                    transition="all 0.2s"
+                  >
+                    <HStack justify="space-between">
+                      <HStack gap={3} flex={1}>
+                        <Box
+                          p={2}
+                          bg={transaction.amount < 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}
+                          rounded="lg"
+                        >
+                          {transaction.amount < 0 ? (
+                            <TrendingUp size={18} color="#22c55e" />
+                          ) : (
+                            <TrendingDown size={18} color="#ef4444" />
+                          )}
+                        </Box>
+                        <VStack align="start" gap={0}>
+                          <Text color="gray.200" fontSize="sm" fontWeight="medium">
+                            {transaction.name}
+                          </Text>
+                          <Text color="gray.500" fontSize="xs">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric'
+                            })} • {transaction.category?.[0] || 'Other'}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                      <Text 
+                        color={transaction.amount < 0 ? 'green.400' : 'gray.200'} 
+                        fontSize="md"
+                        fontWeight="semibold"
+                      >
+                        {transaction.amount < 0 ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                      </Text>
+                    </HStack>
+                  </Box>
+                ))}
+              </VStack>
+            </Box>
+          </Box>
+        </VStack>
       </Container>
     </Box>
   )

@@ -2,7 +2,7 @@ import { Box, Container, Heading, Text, Button, VStack, HStack, SimpleGrid, Icon
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Brain, TrendingUp, Receipt, MessageSquare, Shield, Zap } from 'lucide-react'
-import { Navbar } from '../components'
+import Navbar from '../components/Navbar'
 
 const MotionBox = motion.create(Box)
 
