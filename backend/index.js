@@ -1,5 +1,6 @@
 const express = require('express');
 const authRoutes = require('./routes/auth.route');
+const chatbotRoutes = require('./routes/chatbot.route');
 require('dotenv').config();
 
 const app = express();
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
