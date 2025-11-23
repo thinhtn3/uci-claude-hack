@@ -1,0 +1,222 @@
+date,description,category,amount
+2022-01-01,Landlord Payment,Rent,-1250.00
+2022-01-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-01-12,Grocery Store,Groceries,-160.25
+2022-01-18,Gas Station,Gas,-45.00
+2022-01-20,University Tuition - Spring 2022,Tuition,-6000.00
+2022-01-25,Textbooks and Supplies - Spring 2022,Books & Supplies,-250.00
+2022-02-01,Landlord Payment,Rent,-1250.00
+2022-02-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-02-12,Grocery Store,Groceries,-175.40
+2022-02-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2022-02-18,Gas Station,Gas,-38.00
+2022-03-01,Landlord Payment,Rent,-1250.00
+2022-03-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-03-12,Grocery Store,Groceries,-155.30
+2022-03-15,Spring Break Travel,Travel,-320.00
+2022-03-18,Gas Station,Gas,-50.00
+2022-04-01,Landlord Payment,Rent,-1250.00
+2022-04-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-04-12,Grocery Store,Groceries,-180.50
+2022-04-18,Gas Station,Gas,-42.00
+2022-05-01,Landlord Payment,Rent,-1250.00
+2022-05-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-05-12,Grocery Store,Groceries,-190.10
+2022-05-18,Gas Station,Gas,-55.00
+2022-06-01,Landlord Payment,Rent,-1250.00
+2022-06-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-06-12,Grocery Store,Groceries,-170.35
+2022-06-18,Gas Station,Gas,-40.00
+2022-06-22,Concert Tickets - Summer Fest,Concerts,-85.00
+2022-07-01,Landlord Payment,Rent,-1250.00
+2022-07-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-07-12,Grocery Store,Groceries,-160.45
+2022-07-18,Gas Station,Gas,-43.00
+2022-08-01,Landlord Payment,Rent,-1250.00
+2022-08-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-08-12,Grocery Store,Groceries,-185.20
+2022-08-18,Gas Station,Gas,-60.00
+2022-08-25,University Tuition - Fall 2022,Tuition,-6100.00
+2022-09-01,Landlord Payment,Rent,-1250.00
+2022-09-05,Textbooks and Supplies - Fall 2022,Books & Supplies,-250.00
+2022-09-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-09-12,Grocery Store,Groceries,-195.60
+2022-09-18,Gas Station,Gas,-48.00
+2022-10-01,Landlord Payment,Rent,-1250.00
+2022-10-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-10-12,Grocery Store,Groceries,-180.75
+2022-10-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2022-10-18,Gas Station,Gas,-50.00
+2022-11-01,Landlord Payment,Rent,-1250.00
+2022-11-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-11-12,Grocery Store,Groceries,-170.90
+2022-11-18,Gas Station,Gas,-46.00
+2022-12-01,Landlord Payment,Rent,-1250.00
+2022-12-05,Monthly Subscriptions,Subscriptions,-28.99
+2022-12-12,Grocery Store,Groceries,-200.25
+2022-12-18,Gas Station,Gas,-58.00
+2023-01-01,Landlord Payment,Rent,-1250.00
+2023-01-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-01-12,Grocery Store,Groceries,-160.25
+2023-01-18,Gas Station,Gas,-45.00
+2023-01-20,University Tuition - Spring 2023,Tuition,-6100.00
+2023-01-25,Textbooks and Supplies - Spring 2023,Books & Supplies,-250.00
+2023-02-01,Landlord Payment,Rent,-1250.00
+2023-02-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-02-12,Grocery Store,Groceries,-175.40
+2023-02-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2023-02-18,Gas Station,Gas,-38.00
+2023-03-01,Landlord Payment,Rent,-1250.00
+2023-03-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-03-12,Grocery Store,Groceries,-155.30
+2023-03-15,Spring Break Travel,Travel,-320.00
+2023-03-18,Gas Station,Gas,-50.00
+2023-04-01,Landlord Payment,Rent,-1250.00
+2023-04-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-04-12,Grocery Store,Groceries,-180.50
+2023-04-18,Gas Station,Gas,-42.00
+2023-05-01,Landlord Payment,Rent,-1250.00
+2023-05-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-05-12,Grocery Store,Groceries,-190.10
+2023-05-18,Gas Station,Gas,-55.00
+2023-06-01,Landlord Payment,Rent,-1250.00
+2023-06-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-06-12,Grocery Store,Groceries,-170.35
+2023-06-18,Gas Station,Gas,-40.00
+2023-06-22,Concert Tickets - Indie Night,Concerts,-85.00
+2023-07-01,Landlord Payment,Rent,-1250.00
+2023-07-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-07-12,Grocery Store,Groceries,-160.45
+2023-07-18,Gas Station,Gas,-43.00
+2023-08-01,Landlord Payment,Rent,-1250.00
+2023-08-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-08-12,Grocery Store,Groceries,-185.20
+2023-08-18,Gas Station,Gas,-60.00
+2023-08-25,University Tuition - Fall 2023,Tuition,-6200.00
+2023-09-01,Landlord Payment,Rent,-1250.00
+2023-09-05,Textbooks and Supplies - Fall 2023,Books & Supplies,-250.00
+2023-09-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-09-12,Grocery Store,Groceries,-195.60
+2023-09-18,Gas Station,Gas,-48.00
+2023-10-01,Landlord Payment,Rent,-1250.00
+2023-10-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-10-12,Grocery Store,Groceries,-180.75
+2023-10-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2023-10-18,Gas Station,Gas,-50.00
+2023-11-01,Landlord Payment,Rent,-1250.00
+2023-11-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-11-12,Grocery Store,Groceries,-170.90
+2023-11-18,Gas Station,Gas,-46.00
+2023-12-01,Landlord Payment,Rent,-1250.00
+2023-12-05,Monthly Subscriptions,Subscriptions,-28.99
+2023-12-12,Grocery Store,Groceries,-200.25
+2023-12-18,Gas Station,Gas,-58.00
+2024-01-01,Landlord Payment,Rent,-1250.00
+2024-01-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-01-12,Grocery Store,Groceries,-160.25
+2024-01-18,Gas Station,Gas,-45.00
+2024-01-20,University Tuition - Spring 2024,Tuition,-6200.00
+2024-01-25,Textbooks and Supplies - Spring 2024,Books & Supplies,-250.00
+2024-02-01,Landlord Payment,Rent,-1250.00
+2024-02-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-02-12,Grocery Store,Groceries,-175.40
+2024-02-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2024-02-18,Gas Station,Gas,-38.00
+2024-03-01,Landlord Payment,Rent,-1250.00
+2024-03-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-03-12,Grocery Store,Groceries,-155.30
+2024-03-15,Spring Break Travel,Travel,-320.00
+2024-03-18,Gas Station,Gas,-50.00
+2024-04-01,Landlord Payment,Rent,-1250.00
+2024-04-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-04-12,Grocery Store,Groceries,-180.50
+2024-04-18,Gas Station,Gas,-42.00
+2024-05-01,Landlord Payment,Rent,-1250.00
+2024-05-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-05-12,Grocery Store,Groceries,-190.10
+2024-05-18,Gas Station,Gas,-55.00
+2024-06-01,Landlord Payment,Rent,-1250.00
+2024-06-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-06-12,Grocery Store,Groceries,-170.35
+2024-06-18,Gas Station,Gas,-40.00
+2024-06-22,Concert Tickets - Summer Bash,Concerts,-85.00
+2024-07-01,Landlord Payment,Rent,-1250.00
+2024-07-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-07-12,Grocery Store,Groceries,-160.45
+2024-07-18,Gas Station,Gas,-43.00
+2024-08-01,Landlord Payment,Rent,-1250.00
+2024-08-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-08-12,Grocery Store,Groceries,-185.20
+2024-08-18,Gas Station,Gas,-60.00
+2024-08-25,University Tuition - Fall 2024,Tuition,-6300.00
+2024-09-01,Landlord Payment,Rent,-1250.00
+2024-09-05,Textbooks and Supplies - Fall 2024,Books & Supplies,-250.00
+2024-09-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-09-12,Grocery Store,Groceries,-195.60
+2024-09-18,Gas Station,Gas,-48.00
+2024-10-01,Landlord Payment,Rent,-1250.00
+2024-10-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-10-12,Grocery Store,Groceries,-180.75
+2024-10-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2024-10-18,Gas Station,Gas,-50.00
+2024-11-01,Landlord Payment,Rent,-1250.00
+2024-11-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-11-12,Grocery Store,Groceries,-170.90
+2024-11-18,Gas Station,Gas,-46.00
+2024-12-01,Landlord Payment,Rent,-1250.00
+2024-12-05,Monthly Subscriptions,Subscriptions,-28.99
+2024-12-12,Grocery Store,Groceries,-200.25
+2024-12-18,Gas Station,Gas,-58.00
+2025-01-01,Landlord Payment,Rent,-1250.00
+2025-01-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-01-12,Grocery Store,Groceries,-160.25
+2025-01-18,Gas Station,Gas,-45.00
+2025-01-20,University Tuition - Spring 2025,Tuition,-6300.00
+2025-01-25,Textbooks and Supplies - Spring 2025,Books & Supplies,-250.00
+2025-02-01,Landlord Payment,Rent,-1250.00
+2025-02-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-02-12,Grocery Store,Groceries,-175.40
+2025-02-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2025-02-18,Gas Station,Gas,-38.00
+2025-03-01,Landlord Payment,Rent,-1250.00
+2025-03-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-03-12,Grocery Store,Groceries,-155.30
+2025-03-15,Spring Break Travel,Travel,-320.00
+2025-03-18,Gas Station,Gas,-50.00
+2025-04-01,Landlord Payment,Rent,-1250.00
+2025-04-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-04-12,Grocery Store,Groceries,-180.50
+2025-04-18,Gas Station,Gas,-42.00
+2025-05-01,Landlord Payment,Rent,-1250.00
+2025-05-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-05-12,Grocery Store,Groceries,-190.10
+2025-05-18,Gas Station,Gas,-55.00
+2025-06-01,Landlord Payment,Rent,-1250.00
+2025-06-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-06-12,Grocery Store,Groceries,-170.35
+2025-06-18,Gas Station,Gas,-40.00
+2025-06-22,Concert Tickets - Summer Sounds,Concerts,-85.00
+2025-07-01,Landlord Payment,Rent,-1250.00
+2025-07-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-07-12,Grocery Store,Groceries,-160.45
+2025-07-18,Gas Station,Gas,-43.00
+2025-08-01,Landlord Payment,Rent,-1250.00
+2025-08-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-08-12,Grocery Store,Groceries,-185.20
+2025-08-18,Gas Station,Gas,-60.00
+2025-08-25,University Tuition - Fall 2025,Tuition,-6400.00
+2025-09-01,Landlord Payment,Rent,-1250.00
+2025-09-05,Textbooks and Supplies - Fall 2025,Books & Supplies,-250.00
+2025-09-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-09-12,Grocery Store,Groceries,-195.60
+2025-09-18,Gas Station,Gas,-48.00
+2025-10-01,Landlord Payment,Rent,-1250.00
+2025-10-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-10-12,Grocery Store,Groceries,-180.75
+2025-10-14,Date Night - Dinner and Movie,Significant Other,-70.00
+2025-10-18,Gas Station,Gas,-50.00
+2025-11-01,Landlord Payment,Rent,-1250.00
+2025-11-05,Monthly Subscriptions,Subscriptions,-28.99
+2025-11-12,Grocery Store,Groceries,-170.90
+2025-11-18,Gas Station,Gas,-46.00
+
