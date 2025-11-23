@@ -4,174 +4,54 @@ import { Building2, TrendingUp, TrendingDown, Wallet, CreditCard, Lightbulb, Che
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../contexts/AuthContext'
-import { useInsights } from '../contexts/InsightsContext'
 import Plot from 'react-plotly.js'
-
-// Mock Plaid data - simulates response from Plaid API
-const MOCK_PLAID_DATA = {
-  accounts: [
-    {
-      account_id: 'acc_1',
-      name: 'Plaid Checking',
-      official_name: 'Plaid Gold Standard 0% Interest Checking',
-      type: 'depository',
-      subtype: 'checking',
-      mask: '0000',
-      balances: {
-        available: 100.00,
-        current: 110.00,
-        limit: null,
-        iso_currency_code: 'USD'
-      }
-    },
-    {
-      account_id: 'acc_2',
-      name: 'Plaid Saving',
-      official_name: 'Plaid Silver Standard 0.1% Interest Saving',
-      type: 'depository',
-      subtype: 'savings',
-      mask: '1111',
-      balances: {
-        available: 200.00,
-        current: 210.00,
-        limit: null,
-        iso_currency_code: 'USD'
-      }
-    },
-    {
-      account_id: 'acc_3',
-      name: 'Plaid Credit Card',
-      official_name: 'Plaid Diamond 12.5% APR Interest Credit Card',
-      type: 'credit',
-      subtype: 'credit card',
-      mask: '3333',
-      balances: {
-        available: 410.00,
-        current: 410.00,
-        limit: 2000.00,
-        iso_currency_code: 'USD'
-      }
-    }
-  ],
-  transactions: [
-    {
-      transaction_id: 'tx_1',
-      account_id: 'acc_1',
-      amount: 89.40,
-      date: '2024-11-21',
-      name: 'Uber 072515 SF**POOL**',
-      merchant_name: 'Uber',
-      category: ['Transportation', 'Taxis and Ride Shares'],
-      pending: false,
-      payment_channel: 'online'
-    },
-    {
-      transaction_id: 'tx_2',
-      account_id: 'acc_1',
-      amount: 12.00,
-      date: '2024-11-21',
-      name: 'McDonald\'s',
-      merchant_name: 'McDonald\'s',
-      category: ['Food and Drink', 'Restaurants', 'Fast Food'],
-      pending: false,
-      payment_channel: 'in store'
-    },
-    {
-      transaction_id: 'tx_3',
-      account_id: 'acc_1',
-      amount: -500.00,
-      date: '2024-11-20',
-      name: 'UNITED AIRLINES',
-      merchant_name: 'United Airlines',
-      category: ['Travel', 'Airlines and Aviation Services'],
-      pending: false,
-      payment_channel: 'online'
-    },
-    {
-      transaction_id: 'tx_4',
-      account_id: 'acc_1',
-      amount: 4.33,
-      date: '2024-11-20',
-      name: 'Starbucks',
-      merchant_name: 'Starbucks',
-      category: ['Food and Drink', 'Restaurants', 'Coffee Shop'],
-      pending: false,
-      payment_channel: 'in store'
-    },
-    {
-      transaction_id: 'tx_5',
-      account_id: 'acc_1',
-      amount: 25.00,
-      date: '2024-11-19',
-      name: 'Spotify',
-      merchant_name: 'Spotify',
-      category: ['Service', 'Entertainment'],
-      pending: false,
-      payment_channel: 'online'
-    },
-    {
-      transaction_id: 'tx_6',
-      account_id: 'acc_2',
-      amount: 500.00,
-      date: '2024-11-18',
-      name: 'INTRST PYMNT',
-      merchant_name: null,
-      category: ['Transfer', 'Deposit'],
-      pending: false,
-      payment_channel: 'other'
-    },
-    {
-      transaction_id: 'tx_7',
-      account_id: 'acc_3',
-      amount: 6.33,
-      date: '2024-11-17',
-      name: 'Tectra Inc',
-      merchant_name: 'Tectra Inc',
-      category: ['Payment'],
-      pending: false,
-      payment_channel: 'online'
-    },
-    {
-      transaction_id: 'tx_8',
-      account_id: 'acc_1',
-      amount: 78.50,
-      date: '2024-11-17',
-      name: 'Madison Bicycle Shop',
-      merchant_name: 'Madison Bicycle Shop',
-      category: ['Shops', 'Sporting Goods'],
-      pending: false,
-      payment_channel: 'in store'
-    }
-  ]
-}
+import { loadTransactionData } from '../services/dataService'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user, loading } = useAuth()
   const [connectingBank, setConnectingBank] = useState(false)
-  const [plaidData] = useState(MOCK_PLAID_DATA)
+  const [plaidData, setPlaidData] = useState(null)
+  const [dataLoading, setDataLoading] = useState(true)
   const [insights, setInsights] = useState([])
   const [loadingInsights, setLoadingInsights] = useState(false)
 
+  // Load transaction data from CSV
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await loadTransactionData()
+        setPlaidData(data)
+      } catch (error) {
+        console.error('Error loading transaction data:', error)
+      } finally {
+        setDataLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
   // Calculate total balance (moved before useEffect to avoid initialization error)
-  const totalBalance = plaidData.accounts.reduce((sum, account) => {
+  const totalBalance = plaidData?.accounts?.reduce((sum, account) => {
     return sum + (account.balances.current || 0)
-  }, 0)
+  }, 0) || 0
 
   // Process transaction data for Sankey diagram
   const getSankeyData = () => {
+    if (!plaidData?.transactions) return { nodes: [], links: { source: [], target: [], value: [], color: [] } }
+    
     // Categorize transactions
     const categorySpending = {}
     let totalIncome = 0
     
     plaidData.transactions.forEach(tx => {
-      if (tx.amount < 0) {
-        // Negative amounts are income/deposits
-        totalIncome += Math.abs(tx.amount)
-      } else {
-        // Positive amounts are expenses
+      if (tx.isExpense) {
+        // Expenses
         const category = tx.category?.[0] || 'Other'
         categorySpending[category] = (categorySpending[category] || 0) + tx.amount
+      } else {
+        // Income
+        totalIncome += tx.amount
       }
     })
 
@@ -224,7 +104,7 @@ export default function Dashboard() {
   // Fetch insights on dashboard load
   useEffect(() => {
     const fetchInsights = async () => {
-      if (!user || loading) return
+      if (!user || loading || !plaidData) return
 
       setLoadingInsights(true)
       try {
@@ -270,7 +150,7 @@ export default function Dashboard() {
     // Fetch insights after a short delay to let the page load
     const timer = setTimeout(fetchInsights, 500)
     return () => clearTimeout(timer)
-  }, [user, loading, totalBalance, plaidData])
+  }, [user, loading, plaidData])
 
   const handleConnectBank = async () => {
     setConnectingBank(true)
@@ -294,17 +174,20 @@ export default function Dashboard() {
     }
   }
 
-  // Show loading state while checking authentication
-  if (loading) {
+  // Show loading state while checking authentication or loading data
+  if (loading || dataLoading) {
     return (
       <Box minH="100vh" bg="#0a0f1e" display="flex" alignItems="center" justifyContent="center">
-        <Text color="cyan.400" fontSize="lg">Loading...</Text>
+        <VStack gap={4}>
+          <Text color="cyan.400" fontSize="lg">Loading your financial data...</Text>
+          {dataLoading && <Text color="gray.500" fontSize="sm">Parsing transaction history</Text>}
+        </VStack>
       </Box>
     )
   }
 
   // Don't render dashboard if not authenticated (will redirect)
-  if (!user) {
+  if (!user || !plaidData) {
     return null
   }
 
