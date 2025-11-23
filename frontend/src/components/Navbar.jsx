@@ -38,7 +38,7 @@ export default function Navbar() {
             _hover={{ bgGradient: "linear(to-r, cyan.300, orange.300)" }}
             color="white"
           >
-            AI Financial Advisor
+            finVisor
           </Heading>
           <HStack gap={3}>
             {user ? (

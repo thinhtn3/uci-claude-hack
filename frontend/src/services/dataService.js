@@ -43,10 +43,10 @@ export const calculateAccountBalances = (transactions) => {
     .filter(tx => !tx.isExpense)
     .reduce((sum, tx) => sum + tx.amount, 0)
   
-  // Create mock accounts with calculated balances
-  const checkingBalance = Math.max(5000 - (totalSpent * 0.6), 100)
-  const savingsBalance = Math.max(10000 - (totalSpent * 0.3), 200)
-  const creditAvailable = 2000
+  // Create mock accounts with more realistic college student balances
+  const checkingBalance = 250 // Typical college student checking balance
+  const savingsBalance = 800 // Small savings from summer job/part-time work
+  const creditAvailable = 500 // Lower credit limit for student
   
   return [
     {
@@ -80,14 +80,14 @@ export const calculateAccountBalances = (transactions) => {
     {
       account_id: 'acc_3',
       name: 'Credit Card',
-      official_name: 'Rewards Credit Card',
+      official_name: 'Student Credit Card',
       type: 'credit',
       subtype: 'credit card',
       mask: '3333',
       balances: {
         available: creditAvailable,
         current: creditAvailable,
-        limit: 2000,
+        limit: 500,
         iso_currency_code: 'USD'
       }
     }
@@ -107,11 +107,13 @@ export const loadTransactionData = async () => {
     const csvText = await response.text()
     const transactions = parseTransactionsCSV(csvText)
     const accounts = calculateAccountBalances(transactions)
-    const recentTransactions = getRecentTransactions(transactions, 20)
+    
+    // Sort transactions by date descending (most recent first) but return ALL of them
+    const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date))
     
     return {
       accounts,
-      transactions: recentTransactions
+      transactions: sortedTransactions
     }
   } catch (error) {
     console.error('Failed to load transaction data:', error)
