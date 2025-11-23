@@ -7,20 +7,53 @@ class ChatbotService {
     this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   }
 
+  parseJsonResponse(text) {
+    try {
+      // Remove markdown code blocks if present
+      let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.error('Failed to parse JSON, returning default structure');
+      return {
+        message: text,
+        insights: [
+          "Track all expenses for the rest of the month",
+          "Set daily spending limits based on remaining budget",
+          "Reduce non-essential purchases until month end"
+        ]
+      };
+    }
+  }
+
   async chat(userMessage, conversationHistory = []) {
     try {
-      const prompt = `You are a helpful financial advisor. Give brief advice (under 100 words).
+      const prompt = `You are a helpful financial advisor. Respond in JSON format with both a conversational message and actionable insights.
 
-User: ${userMessage}`;
+User: ${userMessage}
+
+Respond with this exact JSON structure:
+{
+  "message": "Your brief conversational response (under 100 words)",
+  "insights": [
+    "Actionable insight 1",
+    "Actionable insight 2",
+    "Actionable insight 3"
+  ]
+}
+
+Provide 3-6 specific, actionable insights for budgeting better for the rest of the month.`;
 
       const result = await this.model.generateContent(prompt);
-      const response = result.response.text();
+      const responseText = result.response.text();
+      const parsed = this.parseJsonResponse(responseText);
       
-      console.log('🤖 AI Response:', response);
+      console.log('🤖 AI Response:', parsed.message);
+      console.log('💡 Insights:', parsed.insights);
       
       return {
         success: true,
-        message: response
+        message: parsed.message,
+        insights: parsed.insights
       };
     } catch (error) {
       console.error('Chatbot service error:', error);
@@ -34,7 +67,7 @@ User: ${userMessage}`;
   async chatWithContext(userMessage, userFinancialData, conversationHistory = []) {
     try {
       // Build financial context
-      let context = "You are a helpful financial advisor. Give brief, actionable advice (under 100 words).\n\n";
+      let context = "You are a helpful financial advisor. Analyze the user's financial data and respond in JSON format.\n\n";
       
       if (userFinancialData) {
         context += "User's Financial Data:\n";
@@ -78,16 +111,31 @@ User: ${userMessage}`;
         context += "\n";
       }
       
-      context += `User: ${userMessage}\nAssistant:`;
+      context += `User: ${userMessage}\n\n`;
+      context += `Respond with this exact JSON structure:
+{
+  "message": "Your brief conversational response (under 100 words)",
+  "insights": [
+    "Specific actionable insight 1 based on their spending data",
+    "Specific actionable insight 2 for this month",
+    "Specific actionable insight 3 to reduce costs",
+    "Additional insights as needed (3-6 total)"
+  ]
+}
+
+Base your insights on their actual financial data. Be specific and actionable for the rest of this month.`;
 
       const result = await this.model.generateContent(context);
-      const response = result.response.text();
+      const responseText = result.response.text();
+      const parsed = this.parseJsonResponse(responseText);
       
-      console.log('🤖 AI Response (with context):', response);
+      console.log('🤖 AI Response (with context):', parsed.message);
+      console.log('💡 Insights:', parsed.insights);
       
       return {
         success: true,
-        message: response
+        message: parsed.message,
+        insights: parsed.insights
       };
     } catch (error) {
       console.error('Chatbot service error:', error);

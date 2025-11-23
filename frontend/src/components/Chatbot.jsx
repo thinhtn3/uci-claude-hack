@@ -57,7 +57,7 @@ export default function Chatbot() {
         },
         body: JSON.stringify({
           message: messageToSend,
-          conversationHistory: messages.slice(-6), // Send last 6 messages (3 exchanges) for faster responses
+          conversationHistory: messages.slice(-10), // Send last 10 messages for context
           financialData: getFinancialContext()
         })
       })

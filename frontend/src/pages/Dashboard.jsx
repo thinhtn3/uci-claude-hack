@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Box, Container, Heading, Text, Button, VStack, HStack, SimpleGrid, Badge } from '@chakra-ui/react'
-import { Building2, TrendingUp, TrendingDown, Wallet, CreditCard } from 'lucide-react'
+import { Building2, TrendingUp, TrendingDown, Wallet, CreditCard, Lightbulb, CheckCircle, MessageSquare } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../contexts/AuthContext'
+import { useInsights } from '../contexts/InsightsContext'
 import Plot from 'react-plotly.js'
 
 // Mock Plaid data - simulates response from Plaid API
@@ -149,6 +150,13 @@ export default function Dashboard() {
   const { user, loading } = useAuth()
   const [connectingBank, setConnectingBank] = useState(false)
   const [plaidData] = useState(MOCK_PLAID_DATA)
+  const [insights, setInsights] = useState([])
+  const [loadingInsights, setLoadingInsights] = useState(false)
+
+  // Calculate total balance (moved before useEffect to avoid initialization error)
+  const totalBalance = plaidData.accounts.reduce((sum, account) => {
+    return sum + (account.balances.current || 0)
+  }, 0)
 
   // Process transaction data for Sankey diagram
   const getSankeyData = () => {
@@ -213,6 +221,57 @@ export default function Dashboard() {
     }
   }, [user, loading, navigate])
 
+  // Fetch insights on dashboard load
+  useEffect(() => {
+    const fetchInsights = async () => {
+      if (!user || loading) return
+
+      setLoadingInsights(true)
+      try {
+        // Prepare financial data
+        const financialData = {
+          totalBalance: totalBalance,
+          accounts: plaidData.accounts,
+          recentTransactions: plaidData.transactions.slice(0, 5),
+          spendingByCategory: plaidData.transactions.reduce((acc, tx) => {
+            if (tx.amount > 0) {
+              const category = tx.category?.[0] || 'Other'
+              acc[category] = (acc[category] || 0) + tx.amount
+            }
+            return acc
+          }, {})
+        }
+
+        const response = await fetch('http://localhost:8080/api/chatbot/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: 'Analyze my financial situation and provide actionable budgeting insights for the rest of this month.',
+            conversationHistory: [],
+            financialData: financialData
+          })
+        })
+
+        const data = await response.json()
+
+        if (response.ok && data.insights && data.insights.length > 0) {
+          setInsights(data.insights)
+          console.log('💡 Loaded insights:', data.insights)
+        }
+      } catch (error) {
+        console.error('Failed to fetch insights:', error)
+      } finally {
+        setLoadingInsights(false)
+      }
+    }
+
+    // Fetch insights after a short delay to let the page load
+    const timer = setTimeout(fetchInsights, 500)
+    return () => clearTimeout(timer)
+  }, [user, loading, totalBalance, plaidData])
+
   const handleConnectBank = async () => {
     setConnectingBank(true)
     try {
@@ -248,11 +307,6 @@ export default function Dashboard() {
   if (!user) {
     return null
   }
-
-  // Calculate total balance
-  const totalBalance = plaidData.accounts.reduce((sum, account) => {
-    return sum + (account.balances.current || 0)
-  }, 0)
 
   return (
     <Box minH="100vh" bg="#0a0f1e">
@@ -305,67 +359,193 @@ export default function Dashboard() {
             </VStack>
           </Box>
 
-          {/* Money Flow Visualization - Sankey Diagram */}
-          <Box>
-            <Heading size="md" color="gray.100" mb={4}>
-              Money Flow
-            </Heading>
-            <Box
-              bg="rgba(15, 23, 42, 0.8)"
-              backdropFilter="blur(10px)"
-              p={6}
-              rounded="xl"
-              borderWidth="1px"
-              borderColor="rgba(51, 65, 85, 0.6)"
-              overflow="hidden"
-            >
-              <Plot
-                data={[
-                  {
-                    type: 'sankey',
-                    orientation: 'h',
-                    node: {
-                      pad: 15,
-                      thickness: 20,
-                      line: {
-                        color: '#334155',
-                        width: 2
+          {/* Money Flow and Insights - Side by Side */}
+          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
+            {/* Money Flow Visualization - Sankey Diagram */}
+            <Box>
+              <Heading size="md" color="gray.100" mb={4}>
+                Money Flow
+              </Heading>
+              <Box
+                bg="rgba(15, 23, 42, 0.8)"
+                backdropFilter="blur(10px)"
+                p={6}
+                rounded="xl"
+                borderWidth="1px"
+                borderColor="rgba(51, 65, 85, 0.6)"
+                overflow="hidden"
+              >
+                <Plot
+                  data={[
+                    {
+                      type: 'sankey',
+                      orientation: 'h',
+                      node: {
+                        pad: 15,
+                        thickness: 20,
+                        line: {
+                          color: '#334155',
+                          width: 2
+                        },
+                        label: sankeyData.nodes.map(n => n.label),
+                        color: sankeyData.nodes.map(n => n.color),
+                        customdata: sankeyData.nodes.map(n => n.label),
+                        hovertemplate: '%{customdata}<br />$%{value:.2f}<extra></extra>'
                       },
-                      label: sankeyData.nodes.map(n => n.label),
-                      color: sankeyData.nodes.map(n => n.color),
-                      customdata: sankeyData.nodes.map(n => n.label),
-                      hovertemplate: '%{customdata}<br />$%{value:.2f}<extra></extra>'
-                    },
-                    link: {
-                      source: sankeyData.links.source,
-                      target: sankeyData.links.target,
-                      value: sankeyData.links.value,
-                      color: sankeyData.links.color,
-                      hovertemplate: '%{source.label} → %{target.label}<br />$%{value:.2f}<extra></extra>'
+                      link: {
+                        source: sankeyData.links.source,
+                        target: sankeyData.links.target,
+                        value: sankeyData.links.value,
+                        color: sankeyData.links.color,
+                        hovertemplate: '%{source.label} → %{target.label}<br />$%{value:.2f}<extra></extra>'
+                      }
                     }
-                  }
-                ]}
-                layout={{
-                  font: {
-                    size: 12,
-                    color: '#cbd5e1'
-                  },
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  margin: { l: 10, r: 10, t: 10, b: 10 },
-                  height: 400
-                }}
-                config={{
-                  displayModeBar: false,
-                  responsive: true
-                }}
-                style={{ width: '100%' }}
-              />
-              <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
-                Visualizes income flowing to available balance and spending across categories
-              </Text>
+                  ]}
+                  layout={{
+                    font: {
+                      size: 12,
+                      color: '#cbd5e1'
+                    },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    margin: { l: 10, r: 10, t: 10, b: 10 },
+                    height: 400
+                  }}
+                  config={{
+                    displayModeBar: false,
+                    responsive: true
+                  }}
+                  style={{ width: '100%' }}
+                />
+                <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
+                  Visualizes income flowing to available balance and spending across categories
+                </Text>
+              </Box>
             </Box>
-          </Box>
+
+            {/* AI Insights Box */}
+            <Box>
+              <HStack justify="space-between" mb={4}>
+                <Heading size="md" color="gray.100">
+                  AI Insights
+                </Heading>
+                <HStack gap={1}>
+                  <Lightbulb size={18} color="#06b6d4" />
+                  <Text color="cyan.400" fontSize="sm" fontWeight="semibold">
+                    Powered by AI
+                  </Text>
+                </HStack>
+              </HStack>
+              <Box
+                bg="rgba(15, 23, 42, 0.8)"
+                backdropFilter="blur(10px)"
+                p={6}
+                rounded="xl"
+                borderWidth="1px"
+                borderColor="rgba(51, 65, 85, 0.6)"
+                h="468px"
+                overflowY="auto"
+                css={{
+                  '&::-webkit-scrollbar': {
+                    width: '8px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: 'rgba(6, 182, 212, 0.3)',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    background: 'rgba(6, 182, 212, 0.5)',
+                  },
+                }}
+              >
+                {loadingInsights ? (
+                  <VStack align="center" justify="center" h="full" gap={4}>
+                    <Box
+                      p={4}
+                      bg="rgba(6, 182, 212, 0.1)"
+                      rounded="full"
+                      borderWidth="1px"
+                      borderColor="rgba(6, 182, 212, 0.3)"
+                    >
+                      <Lightbulb size={32} color="#06b6d4" />
+                    </Box>
+                    <VStack gap={2}>
+                      <Text color="gray.300" fontSize="md" fontWeight="semibold">
+                        Analyzing your finances...
+                      </Text>
+                      <Text color="gray.500" fontSize="sm" textAlign="center" maxW="xs">
+                        AI is generating personalized insights based on your spending patterns
+                      </Text>
+                    </VStack>
+                  </VStack>
+                ) : insights && insights.length > 0 ? (
+                  <VStack align="stretch" gap={3}>
+                    <Text color="gray.400" fontSize="sm" mb={2}>
+                      Actionable tips to improve your budget this month:
+                    </Text>
+                    {insights.map((insight, index) => (
+                      <HStack
+                        key={index}
+                        align="start"
+                        p={3}
+                        bg="rgba(6, 182, 212, 0.05)"
+                        borderWidth="1px"
+                        borderColor="rgba(6, 182, 212, 0.2)"
+                        rounded="lg"
+                        _hover={{
+                          bg: 'rgba(6, 182, 212, 0.1)',
+                          borderColor: 'rgba(6, 182, 212, 0.3)',
+                        }}
+                        transition="all 0.2s"
+                      >
+                        <Box flexShrink={0} mt={0.5}>
+                          <CheckCircle size={16} color="#06b6d4" />
+                        </Box>
+                        <Text color="gray.200" fontSize="sm" lineHeight="1.6">
+                          {insight}
+                        </Text>
+                      </HStack>
+                    ))}
+                  </VStack>
+                ) : (
+                  <VStack align="center" justify="center" h="full" gap={4}>
+                    <Box
+                      p={4}
+                      bg="rgba(6, 182, 212, 0.1)"
+                      rounded="full"
+                      borderWidth="1px"
+                      borderColor="rgba(6, 182, 212, 0.3)"
+                    >
+                      <Lightbulb size={32} color="#06b6d4" />
+                    </Box>
+                    <VStack gap={2}>
+                      <Text color="gray.300" fontSize="md" fontWeight="semibold">
+                        No insights yet
+                      </Text>
+                      <Text color="gray.500" fontSize="sm" textAlign="center" maxW="xs">
+                        Chat with the AI assistant to get personalized budgeting insights based on your financial data
+                      </Text>
+                    </VStack>
+                    <Button
+                      size="sm"
+                      bg="rgba(6, 182, 212, 0.15)"
+                      color="cyan.300"
+                      borderWidth="1px"
+                      borderColor="cyan.500"
+                      _hover={{ bg: 'rgba(6, 182, 212, 0.25)' }}
+                      leftIcon={<MessageSquare size={16} />}
+                    >
+                      Open AI Chat
+                    </Button>
+                  </VStack>
+                )}
+              </Box>
+            </Box>
+          </SimpleGrid>
 
           {/* Accounts Grid */}
           <Box>

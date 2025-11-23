@@ -36,6 +36,7 @@ class ChatbotController {
 
       return res.status(200).json({ 
         message: result.message,
+        insights: result.insights || [],
         timestamp: new Date().toISOString()
       });
     } catch (error) {
